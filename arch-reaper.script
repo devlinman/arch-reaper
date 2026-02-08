@@ -9,8 +9,11 @@ logo.image = Image("logo.png");
 logo.originalImage = Image("logo.png");
 logo.sprite = Sprite();
 
+// Red glow sprite (behind logo)
+glow.image = Image.Text(" ", 1, 0, 0);
+glow.sprite = Sprite();
+
 // Progress bar
-loading.image = Image("progress.png");
 loading.originalImage = Image("progress.png");
 loading.sprite = Sprite();
 loading.sprite.SetY(screen.h - 1);
@@ -33,38 +36,49 @@ state.status = "play";
 state.time = 0.0;
 
 //--------------------------------- Refresh (Logo animation) --------------------------
-fun RefreshCallback() {
-    if (state.status == "play")
-        speed = 5;
-    else
-        speed = 1;
 
-    if (Plymouth.GetMode() == "shutdown")
-        opacity = 1 - global.progress * 3;
-    else
-        opacity = 1;
+//----------------------------- Refresh (Logo animation) -----------------------------
+fun RefreshCallback()
+{
+    // ---------------- SCREEN SIZE ----------------
+    screen.w = Window.GetWidth();
+    screen.h = Window.GetHeight();
+    screen.half.w = screen.w / 2;
+    screen.half.h = screen.h / 2;
 
-    sin = Math.Sin(state.time * speed) * 0.05;
-    if (sin < 0)
-        sin *= 2;
-    s = Math.Abs(sin) + 0.3;
+    // ---------------- LOGO SCALE (30% of screen width) ----------------
+    origW = logo.originalImage.GetWidth();
+    origH = logo.originalImage.GetHeight();
 
-    logo.image = logo.originalImage.Scale(
-        logo.originalImage.GetWidth() * s,
-        logo.originalImage.GetHeight() * s
-    );
+    logoW = origW;
+    logoH = origH;
+
+    // ---------------- TIME ----------------
+    t = state.time;
+
+    // nice smooth sine pulse (0 → 1 → 0)
+    pulse = (Math.Sin(t * 2.2) + 1) / 2;
+
+    // ---------------- LOGO BRIGHTNESS PULSE ----------------
+    logoOpacity = 0.5 + pulse * 0.5; // 0.75 → 1.0
+
+    // ---------------- DRAW LOGO ----------------
+    logo.image = logo.originalImage.Scale(logoW, logoH);
     logo.sprite.SetImage(logo.image);
-    logo.sprite.SetX(screen.half.w - logo.image.GetWidth() / 2);
-    logo.sprite.SetY(screen.half.h - logo.image.GetHeight() / 2);
-    logo.sprite.SetOpacity(opacity);
+    logo.sprite.SetOpacity(logoOpacity);
+    logo.sprite.SetX(screen.half.w - logoW / 2);
+    logo.sprite.SetY(screen.half.h - logoH / 2);
 
-    loading.image = loading.originalImage.Scale(global.progress * screen.w, 1);
+    // ---------------- PROGRESS BAR ----------------
+    loading.image = loading.originalImage.Scale(global.progress * screen.w, 2);
     loading.sprite.SetImage(loading.image);
 }
+
 Plymouth.SetRefreshFunction(RefreshCallback);
 
 //------------------------------------- Password prompt -------------------------------
-fun DisplayQuestionCallback(prompt, entry) {
+fun DisplayQuestionCallback(prompt, entry)
+{
     question = null;
     answer = null;
 
@@ -84,7 +98,8 @@ fun DisplayQuestionCallback(prompt, entry) {
 Plymouth.SetDisplayQuestionFunction(DisplayQuestionCallback);
 
 //------------------------------------- Password prompt -------------------------------
-fun DisplayPasswordCallback(nil, bulletCount) {
+fun DisplayPasswordCallback(nil, bulletCount)
+{
     state.status = "pause";
     totalWidth = bulletCount * bullet.image.GetWidth();
     startPos = screen.half.w - totalWidth / 2;
@@ -94,7 +109,6 @@ fun DisplayPasswordCallback(nil, bulletCount) {
     prompt.sprite.SetX(screen.half.w - prompt.image.GetWidth() / 2);
     prompt.sprite.SetY(screen.h - 4 * prompt.image.GetHeight());
 
-    // Clear all bullets (user might hit backspace)
     bullets = null;
     for (i = 0; i < bulletCount; i++) {
         bullets[i].sprite = Sprite(bullet.image);
@@ -104,8 +118,9 @@ fun DisplayPasswordCallback(nil, bulletCount) {
 }
 Plymouth.SetDisplayPasswordFunction(DisplayPasswordCallback);
 
-//--------------------------- Normal display (unset all text) ----------------------
-fun DisplayNormalCallback() {
+//--------------------------- Normal display ----------------------
+fun DisplayNormalCallback()
+{
     state.status = "play";
     bullets = null;
     prompt = null;
@@ -116,14 +131,16 @@ fun DisplayNormalCallback() {
 Plymouth.SetDisplayNormalFunction(DisplayNormalCallback);
 
 //----------------------------------------- Progress --------------------------------
-fun ProgressCallback(duration, progress) {
+fun ProgressCallback(duration, progress)
+{
     global.progress = progress;
     state.time = duration;
 }
 Plymouth.SetBootProgressFunction(ProgressCallback);
 
 //----------------------------------------- Message --------------------------------
-fun MessageCallback(text) {
+fun MessageCallback(text)
+{
     message.image = Image.Text(text, 1, 1, 1);
     message.sprite = Sprite(message.image);
     message.sprite.SetPosition(screen.half.w - message.image.GetWidth() / 2, message.image.GetHeight());
