@@ -1,0 +1,24 @@
+#+TITLE: Arch Reaper Plymouth Boot Theme
+#+DESCRIPTION: My personal Plymouth Boot Theme
+#+AUTHOR: devlinman
+
+
+* Install
++ Copy this folder into =/usr/share/plymouth/themes/=.
+
+#+begin_src shell
+
+sudo plymouth-set-default-theme arch-reaper
+
+# If you use dracut and systemd-boot
+sudo dracut --regenerate-all --force
+
+#+end_src
+
++ I use =systemd-boot= and =dracut=. You may be using =GRUB= and =mkinitcpio=.
++ Check the Arch wiki for more information reagrding that.
+
+* Disclaimer & License
++ I customized =arch-beat= plymouth theme to make this theme.
++ I am not sure about the licensing of that theme.
++ So arch-reaper theme will (for now, at least) be seen as a derivative of arch-beat theme.
