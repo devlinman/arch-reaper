@@ -2,6 +2,10 @@
 #+DESCRIPTION: My personal Plymouth Boot Theme
 #+AUTHOR: devlinman
 
+* Preview
+
+[[file:arch-reaper.gif]]
+
 
 * Install
 + Copy this folder into =/usr/share/plymouth/themes/=.
